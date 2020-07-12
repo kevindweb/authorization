@@ -19,24 +19,40 @@ async function run() {
             return;
     }
 
-    core.debug("user is: " + USER); const url = core.getInput("auth_url", { required: true }); await request({ url: url,
+    core.debug("user is: " + USER); const url = core.getInput("auth_url", { required: true });
+
+    await request({ url: url,
         json: true
     }, function (error, response, body) {
-        if (!error && response.statusCode === 200 &&
+        if (error) {
+            unauthorized("CI couldn't provide a list of authorized users", github);
+            reject(error);
+        } else if (response.statusCode === 200 &&
             body.authorized_users.length > 0) {
             // response was valid, check user
             if (body.authorized_users.includes(USER)) {
                 // authorized user
                 core.setOutput("authorized", 'true');
-                return;
+            } else {
+                // unauthorized
+                unauthorized(USER + " is not authorized to run CI", github);
             }
 
-            // unauthorized
-            unauthorized(USER + " is not authorized to run CI", github);
+            resolve(body);
         } else {
-            unauthorized("CI couldn't provide a list of authorized users", github);
+            unauthorized("Unhandled error came in", github);
+            reject(response);
         }
     })
+}
+
+async function createComment(owner, repo, sha, body, octokit) {
+    await octokit.repos.createCommitComment({
+      owner: owner,
+      repo: repo,
+      commit_sha: sha,
+      body: body + message,
+    });
 }
 
 function unauthorized(message, github) {
@@ -52,12 +68,10 @@ function unauthorized(message, github) {
     core.debug(body);
 
     // create the comment on github
-    octokit.repos.createCommitComment({
-      owner: owner,
-      repo: repo,
-      commit_sha: sha,
-      body: body + message,
-    });
+    createComment(owner, repo, sha, body + message, octokit).catch(err => {
+        console.error(err);
+        core.setFailed("Unexpected error creating comment");
+    }
 
     core.setOutput("authorized", "false");
     core.setFailed("Failed with: " + message);
