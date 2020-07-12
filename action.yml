@@ -1,0 +1,15 @@
+name: 'User Authorization'
+description: 'Check a url for a list of authorized users and return an "authorized" boolean'
+inputs:
+  auth_url:
+    description: URL to fetch the authorized_users from
+    required: true
+outputs:
+  authorized:
+    description: the string 'true' if the user was authorized, 'false' if not
+runs:
+  using: 'node12'
+  main: 'dist/index.js'
+branding:
+  icon: check-circle
+  color: red
