@@ -2,13 +2,13 @@
 
 const request = require("request")
 const core = require("@actions/core");
-const { context, GitHub } = require("@actions/github");
+const { context, github } = require("@actions/github");
 
 function getSha() {
-    if (github.context.eventName == "pull_request") {
-        return github.context.payload.pull_request.head.sha;
+    if (context.eventName == "pull_request") {
+        return context.payload.pull_request.head.sha;
     } else {
-        return github.context.sha;
+        return context.sha;
     }
 }
 
@@ -45,7 +45,7 @@ async function run() {
 
 function unauthorized(message) {
     const { GITHUB_TOKEN } = process.env;
-    const octokit = Github.getOctokit(GITHUB_TOKEN);
+    const octokit = github.getOctokit(GITHUB_TOKEN);
     const sha = getSha();
     const [owner, repo] = core.getInput("repository").split("/");
 
@@ -57,7 +57,7 @@ function unauthorized(message) {
 
     core.debug(body);
 
-    // create the comment on Github
+    // create the comment on github
     octokit.repos.createCommitComment({
       owner: owner,
       repo: repo,
@@ -66,6 +66,7 @@ function unauthorized(message) {
     });
 
     core.setOutput("authorized", "false");
+    core.setFailed("Failed with: " + message);
 }
 
 run().catch(err => {
