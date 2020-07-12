@@ -19,11 +19,7 @@ async function run() {
             return;
     }
 
-    core.debug("user is: " + USER);
-    const url = core.getInput("auth_url", { required: true });
-
-    await request({
-        url: url,
+    core.debug("user is: " + USER); const url = core.getInput("auth_url", { required: true }); await request({ url: url,
         json: true
     }, function (error, response, body) {
         if (!error && response.statusCode === 200 &&
@@ -48,8 +44,6 @@ function unauthorized(message, github) {
     const octokit = github.getOctokit(GITHUB_TOKEN);
     const sha = getSha();
     const [owner, repo] = core.getInput("repository").split("/");
-
-    core.debug(repository);
 
     var body = ">" + (github.context.eventName === "issue_comment"
             ? github.context.payload.comment.body
