@@ -2,13 +2,13 @@
 
 const request = require("request")
 const core = require("@actions/core");
-const { context, github } = require("@actions/github");
+const github = require("@actions/github");
 
 function getSha() {
-    if (context.eventName == "pull_request") {
-        return context.payload.pull_request.head.sha;
+    if (github.context.eventName == "pull_request") {
+        return github.context.payload.pull_request.head.sha;
     } else {
-        return context.sha;
+        return github.context.sha;
     }
 }
 
@@ -36,14 +36,14 @@ async function run() {
             }
 
             // unauthorized
-            unauthorized(USER + " is not authorized to run CI");
+            unauthorized(USER + " is not authorized to run CI", github);
         } else {
-            unauthorized("CI couldn't provide a list of authorized users");
+            unauthorized("CI couldn't provide a list of authorized users", github);
         }
     })
 }
 
-function unauthorized(message) {
+function unauthorized(message, github) {
     const { GITHUB_TOKEN } = process.env;
     const octokit = github.getOctokit(GITHUB_TOKEN);
     const sha = getSha();
@@ -51,8 +51,8 @@ function unauthorized(message) {
 
     core.debug(repository);
 
-    var body = ">" + (context.eventName === "issue_comment"
-            ? context.payload.comment.body
+    var body = ">" + (github.context.eventName === "issue_comment"
+            ? github.context.payload.comment.body
             : 'Response to PR creation') + "\n";
 
     core.debug(body);
