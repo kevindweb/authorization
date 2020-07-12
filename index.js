@@ -19,9 +19,9 @@ async function run() {
             return;
     }
 
-    core.debug("user is: " + USER); const url = core.getInput("auth_url", { required: true });
-
-    await request({ url: url,
+    core.debug("user is: " + USER);
+    const url = core.getInput("auth_url", { required: true });
+await request({ url: url,
         json: true
     }, function (error, response, body) {
         if (error) {
@@ -46,15 +46,6 @@ async function run() {
     })
 }
 
-async function createComment(owner, repo, sha, body, octokit) {
-    await octokit.repos.createCommitComment({
-      owner: owner,
-      repo: repo,
-      commit_sha: sha,
-      body: body + message,
-    });
-}
-
 function unauthorized(message, github) {
     const { GITHUB_TOKEN } = process.env;
     const octokit = github.getOctokit(GITHUB_TOKEN);
@@ -67,14 +58,16 @@ function unauthorized(message, github) {
 
     core.debug(body);
 
-    // create the comment on github
-    createComment(owner, repo, sha, body + message, octokit).catch(err => {
-        console.error(err);
-        core.setFailed("Unexpected error creating comment");
-    }
-
     core.setOutput("authorized", "false");
     core.setFailed("Failed with: " + message);
+
+    // create the comment on github
+    await octokit.repos.createCommitComment({
+      owner: owner,
+      repo: repo,
+      commit_sha: sha,
+      body: body + message,
+    });
 }
 
 run().catch(err => {
