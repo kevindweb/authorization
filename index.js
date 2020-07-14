@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const request = require('request');
+const axios = require('axios');
 const core = require('@actions/core');
 const github = require('@actions/github');
 
@@ -45,40 +45,25 @@ async function run() {
 
   core.debug('user is: ' + USER);
   const url = core.getInput('auth_url', {required: true});
-  await request({url: url,
-    json: true,
-  }, function(error, response, body) {
-    if (error) {
-      unauthorized('CI couldn\'t provide a list of authorized users',
-          github).catch((err) =>{
-        console.error('No list of names ' + err);
-        core.debug('Error here');
-      });
-      reject(error);
-    } else if (response.statusCode === 200 &&
-            body.authorized_users.length > 0) {
-      // response was valid, check user
-      if (body.authorized_users.includes(USER)) {
-        // authorized user
-        core.setOutput('authorized', 'true');
-      } else {
-        // unauthorized
-        unauthorized(USER + ' is not authorized to run CI',
-            github).catch((err) =>{
-          console.error(err);
-          core.debug('Error!' + err);
-        });
-      }
 
-      resolve(body);
-    } else {
-      unauthorized('Unhandled error came in', github).catch((err) => {
-        console.error(err);
-        core.debug('Error sending comment to Github');
-      });
-      reject(response);
-    }
+  const res = axios.get({
+    url: url,
+    method: 'get',
+    headers: {
+      'Content-Type': 'application/json',
+    },
   });
+  if (res.status == 200 && res.data.authorized_users.length > 0) {
+    if (body.authorized_users.includes(USER)) {
+      // authorized user
+      core.setOutput('authorized', 'true');
+    } else {
+      // unauthorized
+      unauthorized(USER + ' is not authorized to run CI', github);
+    }
+  } else {
+    unauthorized('Unhandled error came in', github);
+  }
 }
 
 run().catch((err) => {
