@@ -4,7 +4,8 @@
   "description": "Github Action to Authorize Users via API",
   "main": "dist/index.js",
   "scripts": {
-    "dist": "npx -p @zeit/ncc ncc build index.js",
+    "lint": "eslint index.js",
+    "dist": "ncc build index.js -o dist",
     "format": "prettier --write '*.js' --tab-width=4"
   },
   "repository": {
@@ -20,8 +21,12 @@
   "homepage": "https://github.com/kevindweb/authorization#readme",
   "dependencies": {
     "@actions/core": "^1.2.4",
-    "@actions/github": "^4.0.0",
-    "prettier": "^2.0.5",
+    "@actions/github": "^4.0.0"
+  },
+  "devDependencies": {
+    "@zeit/ncc": "^0.22.3",
+    "eslint": "^7.4.0",
+    "eslint-config-google": "^0.14.0",
     "request": "^2.88.2"
   }
 }
