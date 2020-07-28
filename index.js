@@ -18,10 +18,9 @@ function unauthorized(message) {
   const sha = getSha();
   const [owner, repo] = core.getInput('repository').split('/');
 
-  //  const body = '>' + (github.context.eventName === 'issue_comment' ?
-  //            github.context.payload.comment.body :
-  //            'Response to PR creation') + '\n';
-  const body = 'HELp';
+  const body = '>' + (github.context.eventName === 'issue_comment' ?
+             github.context.payload.comment.body :
+             'Response to PR creation') + '\n';
 
   core.debug(body);
 
@@ -38,16 +37,16 @@ function unauthorized(message) {
 }
 
 async function run() {
-  // const {USER} = process.env;
-  USER = 'kevindweb';
+  const {USER} = process.env;
+  // USER = 'kevindweb';
   if (!USER) {
     core.setFailed('USER must be supplied as an environment variable');
     return;
   }
 
   core.debug('user is: ' + USER);
-  // const url = core.getInput('auth_url', {required: true});
-  const url = 'http://nimbus.seas.gwu.edu/ci-test/auth';
+  const url = core.getInput('auth_url', {required: true});
+  // const url = 'http://nimbus.seas.gwu.edu/ci-test/auth';
 
   axios.get(url).
       then((res) => {
