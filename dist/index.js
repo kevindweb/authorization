@@ -813,15 +813,16 @@ function getSha() {
   }
 }
 
-async function unauthorized(message, github) {
+function unauthorized(message) {
   const {GITHUB_TOKEN} = process.env;
   const octokit = github.getOctokit(GITHUB_TOKEN);
   const sha = getSha();
   const [owner, repo] = core.getInput('repository').split('/');
 
-  const body = '>' + (github.context.eventName === 'issue_comment' ?
-            github.context.payload.comment.body :
-            'Response to PR creation') + '\n';
+  //  const body = '>' + (github.context.eventName === 'issue_comment' ?
+  //            github.context.payload.comment.body :
+  //            'Response to PR creation') + '\n';
+  const body = 'HELp'
 
   core.debug(body);
 
@@ -829,7 +830,7 @@ async function unauthorized(message, github) {
   core.setFailed('Failed with: ' + message);
 
   // create the comment on github
-  await octokit.repos.createCommitComment({
+  octokit.repos.createCommitComment({
     owner: owner,
     repo: repo,
     commit_sha: sha,
@@ -838,14 +839,16 @@ async function unauthorized(message, github) {
 }
 
 async function run() {
-  const {USER} = process.env;
+  //const {USER} = process.env;
+  USER = "kevindweb"
   if (!USER) {
     core.setFailed('USER must be supplied as an environment variable');
     return;
   }
 
   core.debug('user is: ' + USER);
-  const url = core.getInput('auth_url', {required: true});
+  // const url = core.getInput('auth_url', {required: true});
+  const url = 'nimbus.seas.gwu.edu/ci-test/auth';
 
   const res = axios.get({
     url: url,
@@ -860,10 +863,10 @@ async function run() {
       core.setOutput('authorized', 'true');
     } else {
       // unauthorized
-      unauthorized(USER + ' is not authorized to run CI', github);
+      unauthorized(USER + ' is not authorized to run CI');
     }
   } else {
-    unauthorized('Unhandled error came in', github);
+    unauthorized('Unhandled error came in');
   }
 }
 
