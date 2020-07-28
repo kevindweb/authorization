@@ -21,7 +21,7 @@ function unauthorized(message) {
   //  const body = '>' + (github.context.eventName === 'issue_comment' ?
   //            github.context.payload.comment.body :
   //            'Response to PR creation') + '\n';
-  const body = 'HELp'
+  const body = 'HELp';
 
   core.debug(body);
 
@@ -38,8 +38,8 @@ function unauthorized(message) {
 }
 
 async function run() {
-  //const {USER} = process.env;
-  USER = "kevindweb"
+  // const {USER} = process.env;
+  USER = 'kevindweb';
   if (!USER) {
     core.setFailed('USER must be supplied as an environment variable');
     return;
@@ -49,24 +49,22 @@ async function run() {
   // const url = core.getInput('auth_url', {required: true});
   const url = 'nimbus.seas.gwu.edu/ci-test/auth';
 
-  const res = axios.get({
-    url: url,
-    method: 'get',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
-  if (res.status == 200 && res.data.authorized_users.length > 0) {
-    if (body.authorized_users.includes(USER)) {
-      // authorized user
-      core.setOutput('authorized', 'true');
-    } else {
-      // unauthorized
-      unauthorized(USER + ' is not authorized to run CI');
-    }
-  } else {
-    unauthorized('Unhandled error came in');
-  }
+  axios.get(url).
+      then((res) => {
+        if (res.status == 200 && res.data.authorized_users.length > 0) {
+          if (res.data.authorized_users.includes(USER)) {
+          // authorized user
+            core.setOutput('authorized', 'true');
+          } else {
+          // unauthorized
+            console.log(' is not authorized to run CI');
+          }
+        } else {
+          console.log('Unhandled error came in');
+        }
+      }).catch((err) => {
+        console.log(err);
+      });
 }
 
 run().catch((err) => {
