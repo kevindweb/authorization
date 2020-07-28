@@ -47,7 +47,7 @@ async function run() {
 
   core.debug('user is: ' + USER);
   // const url = core.getInput('auth_url', {required: true});
-  const url = 'nimbus.seas.gwu.edu/ci-test/auth';
+  const url = 'http://nimbus.seas.gwu.edu/ci-test/auth';
 
   axios.get(url).
       then((res) => {
