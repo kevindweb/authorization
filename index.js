@@ -23,6 +23,7 @@ function unauthorized(message) {
              'Response to PR creation') + '\n';
 
   core.debug(body);
+  console.log(body);
 
   core.setOutput('authorized', 'false');
   core.setFailed('Failed with: ' + message);
@@ -45,6 +46,11 @@ async function run() {
 
   const url = core.getInput('auth_url', {required: true});
 
+  if (true) {
+    unauthorized("Test stuff")
+    return;
+  }
+
   axios.get(url).
       then((res) => {
         if (res.status == 200 && res.data.authorized_users.length > 0) {
@@ -53,12 +59,13 @@ async function run() {
             core.setOutput('authorized', 'true');
           } else {
             // unauthorized
-            unauthorized(' is not authorized to run CI');
+            unauthorized(USER + ' is not authorized to run CI');
           }
         } else {
           unauthorized('Unhandled error came in');
         }
-      }).catch((err) => {
+      }).catch(err => {
+        core.debug(err);
         unauthorized("Failed to connect to server");
       });
 }
