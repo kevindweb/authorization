@@ -839,31 +839,28 @@ function unauthorized(message) {
 
 async function run() {
   const {USER} = process.env;
-  // USER = 'kevindweb';
   if (!USER) {
     core.setFailed('USER must be supplied as an environment variable');
     return;
   }
 
-  core.debug('user is: ' + USER);
   const url = core.getInput('auth_url', {required: true});
-  // const url = 'http://nimbus.seas.gwu.edu/ci-test/auth';
 
   axios.get(url).
       then((res) => {
         if (res.status == 200 && res.data.authorized_users.length > 0) {
           if (res.data.authorized_users.includes(USER)) {
-          // authorized user
+            // authorized user
             core.setOutput('authorized', 'true');
           } else {
-          // unauthorized
-            console.log(' is not authorized to run CI');
+            // unauthorized
+            unauthorized(' is not authorized to run CI');
           }
         } else {
-          console.log('Unhandled error came in');
+          unauthorized('Unhandled error came in');
         }
       }).catch((err) => {
-        console.log(err);
+        unauthorized("Failed to connect to server");
       });
 }
 
