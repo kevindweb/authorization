@@ -13,6 +13,7 @@ function getSha() {
 }
 
 function unauthorized(message) {
+  try {
   const {GITHUB_TOKEN} = process.env;
   const octokit = github.getOctokit(GITHUB_TOKEN);
   const sha = getSha();
@@ -35,6 +36,7 @@ function unauthorized(message) {
     commit_sha: sha,
     body: body + message,
   });
+  } catch(err) { core.debug("Error: " + err.message) }
 }
 
 async function run() {
