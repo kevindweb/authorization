@@ -821,7 +821,6 @@ function unauthorized(message) {
   core.debug(body);
   core.setOutput('authorized', 'false');
   core.setOutput('message', body);
-  core.setFailed(message);
 }
 
 async function run() {
